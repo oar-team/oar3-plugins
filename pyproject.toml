@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "oar-plugins"
+version = "0.1.0"
+description = ""
+authors = ["Adrien Faure <adrien.faure@protonmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+oar = { git = "https://github.com/oar-team/oar3", rev = "plugins" }
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
+
+[tool.poetry.plugins."oar.extra_metasched_func"]
+default = "src.extra_metasched:extra_metasched_default"
+# The function used in oar automatic tests
+foo = "src.extra_metasched:extra_metasched_foo"
+
+[tool.poetry.plugins."oar.assign_func"]
+default = "src.custom_scheduling:assign_default"
+coorm = "src.custom_scheduling:assign_coorm"
+one_time_find_mld = "src.custom_scheduling:assign_one_time_find_mld"
+one_time_find = "src.custom_scheduling:assign_one_time_find"
+
+[tool.poetry.plugins."oar.find_func"]
+default = "src.custom_scheduling:find_default"
+coorm = "src.custom_scheduling:find_coorm"
+begin = "src.custom_scheduling:find_begin"
+contiguous_1h = "src.custom_scheduling:find_contiguous_1h"
+contiguous_sorted_1h = "src.custom_scheduling:find_contiguous_sorted_1h"
+resource_n_h_local = "src.custom_scheduling:find_resource_n_h_local"
+resource_hierarchies_scattered_local = "src.custom_scheduling:resource_hierarchies_scattered_local"
+local = "src.custom_scheduling:find_local"
+
+[tool.poetry.plugins."oar.jobs_sorting_func"]
+simple_priority = "src.custom_jobs_sorting:jobs_sorting_simple_priority"
