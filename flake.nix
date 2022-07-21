@@ -16,11 +16,17 @@
           projectDir = ./.;
           propagatedBuildInputs = [ ];
           editablePackageSources = {
-             oar-plugins = ./.;
+             oar-plugins = ./src;
           };
         };
-
-        packageName = "oar";
+         overrides_oar = pkgs.poetry2nix.defaultPoetryOverrides.extend ( self: super: {
+            oar = super.oar.overridePythonAttrs (
+              old: {
+                buildInputs = (old.buildInputs or [ ]) ++ [ self.poetry ];
+              }
+            );
+          });
+        packageName = "oar-plugins";
       in {
         packages.${packageName} = app;
 
@@ -28,9 +34,15 @@
 
         devShell = pkgs.mkShell {
           buildInputs = with pkgs; [
-            (poetry2nix.mkPoetryEnv { projectDir = self; })
+            (poetry2nix.mkPoetryEnv {
+              projectDir = self;
+              overrides = overrides_oar;
+            })
 
-            python3Packages.sphinx_rtd_theme
+            (poetry2nix.mkPoetryApplication {
+              projectDir = self;
+              overrides = overrides_oar;
+            })
             poetry
             postgresql
             pre-commit
