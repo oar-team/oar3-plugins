@@ -41,7 +41,7 @@
             projectDir = self;
             overrides = overrides_oar;
           })
-
+          # Install the project so that the entry_points can be found by oar
           (poetry2nix.mkPoetryApplication {
             projectDir = self;
             overrides = overrides_oar;
