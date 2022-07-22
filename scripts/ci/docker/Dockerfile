@@ -10,6 +10,8 @@ ADD scripts/ci/docker/build-base.sh /tmp/
 RUN /bin/bash /tmp/build-base.sh
 
 ADD pyproject.toml poetry.lock /app/
+RUN mkdir -p /app/src && touch /app/src/__init__.py
+
 ADD scripts/ci/docker/build-venv.sh /tmp/
 RUN /bin/bash /tmp/build-venv.sh
 
