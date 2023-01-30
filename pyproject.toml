@@ -9,7 +9,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = ">=3.7, <4"
-oar = { git = "https://github.com/oar-team/oar3", branch = "plugins" }
+# oar = { git = "https://github.com/oar-team/oar3", branch = "plugins" }
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.4"
