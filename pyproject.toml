@@ -23,6 +23,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry.plugins."oar.extra_metasched_func"]
 default = "src.extra_metasched:extra_metasched_default"
+logger = "src.extra_metasched:extra_metasched_logger"
 # The function used in oar automatic tests
 foo = "src.extra_metasched:extra_metasched_foo"
 
