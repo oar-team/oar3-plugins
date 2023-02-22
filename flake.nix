@@ -36,19 +36,21 @@
       defaultPackage = self.packages.${system}.${packageName};
 
       devShell = pkgs.mkShell {
+        LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib";
         buildInputs = with pkgs; [
-          (poetry2nix.mkPoetryEnv {
-            projectDir = self;
-            overrides = overrides_oar;
-          })
-          # Install the project so that the entry_points can be found by oar
-          (poetry2nix.mkPoetryApplication {
-            projectDir = self;
-            overrides = overrides_oar;
-          })
+          # (poetry2nix.mkPoetryEnv {
+          #   projectDir = self;
+          #   overrides = overrides_oar;
+          # })
+          # # Install the project so that the entry_points can be found by oar
+          # (poetry2nix.mkPoetryApplication {
+          #   projectDir = self;
+          #   overrides = overrides_oar;
+          # })
           poetry
           postgresql
           pre-commit
+          stdenv.cc.cc.lib
         ];
       };
       formatter = nixpkgs.legacyPackages.x86_64-linux.alejandra;

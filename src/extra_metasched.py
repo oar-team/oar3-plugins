@@ -20,19 +20,6 @@ def extra_metasched_default(
     pass
 
 
-def extra_metasched_logger(
-    prev_queue,
-    plt,
-    scheduled_jobs,
-    all_slot_sets,
-    job_security_time,
-    queue,
-    initial_time_sec,
-    extra_metasched_config,
-):
-    logger.info("plugin successfully called ;)")
-
-
 def extra_metasched_foo(
     prev_queue,
     plt,

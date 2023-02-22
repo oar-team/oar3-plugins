@@ -38,3 +38,13 @@ def jobs_sorting_simple_priority(queue, now, jids, jobs, str_config, plt):
     ordered_jids = sorted(jids, key=lambda jid: jobs[jid].priority, reverse=True)
     # print karma_ordered_jids
     return ordered_jids
+
+
+def jobs_sorting_reverse_waiting_time(queue, now, jids, jobs, str_config, plt):
+
+    logger.info(vars(jobs[jids[0]]))
+
+    ordered_jids = sorted(jids, key=lambda jid: jobs[jid].submission_time, 
+                          reverse=True)
+
+    return ordered_jids
