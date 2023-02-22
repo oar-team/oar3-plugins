@@ -16,7 +16,7 @@ FIND_ENTRY_POINTS = "oar.find_func"
 def set_assign_func(job, name, args=[], kwargs={}):
 
     job.assign = True
-    job.assign_nargs = args
+    job.assign_args = args
     job.assign_kwargs = kwargs
 
     job.assign_func = find_plugin_function(ASSIGN_ENTRY_POINTS, name)
@@ -35,7 +35,7 @@ def test_find_even_odd():
 
     # Setting up the resources of the platform
     res = ProcSet(*[(1, 32)])
-    ss = SlotSet(Slot(1, 0, 0, res, 0, 1000))
+    ss = SlotSet(Slot(1, 0, 0, res, 0, 100))
     all_ss = {"default": ss}
 
     # Creating a resources hierarchy
@@ -63,6 +63,39 @@ def test_find_even_odd():
     # Now we can tests the job allocations
     assert all([resource_id % 2 == 0 for resource_id in j1.res_set])
     assert all([resource_id % 2 != 0 for resource_id in j2.res_set])
+
+
+def test_assign_start_every_minute():
+
+    total_resources = 100
+    # Setting up the resources of the platform
+    res = ProcSet(*[(1, total_resources + 1)])
+    ss = SlotSet(Slot(1, 0, 0, res, 0, 100000))
+    all_ss = {"default": ss}
+
+    # Creating a resources hierarchy
+    # Creating a resources hierarchy
+    hy = {}
+    hy["resource_id"] = [ProcSet(i) for i in range(1, total_resources)]
+    print(hy)
+
+    jobs = {}
+    jids = []
+    for i in range(1, 10):
+        j = JobPseudo(
+            id=i,
+            mld_res_rqts=[(i, 65, [([("resource_id", 33)], res)])],
+        )
+        jobs[i] = j
+        jids.append(i)
+        set_assign_func(j, "start_every_minute")
+
+    schedule_id_jobs_ct(all_ss, jobs, hy, jids, 20)
+
+    for j in jobs.values():
+        print(f"job {j.id} start at", j.start_time, "with res", j.res_set)
+        
+    assert all([job.start_time % 60 == 0 for job in jobs.values()])
 
 
 def compare_slots_val_ref(slots, v):

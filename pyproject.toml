@@ -29,7 +29,7 @@ foo = "src.extra_metasched:extra_metasched_foo"
 
 [tool.poetry.plugins."oar.assign_func"]
 default = "src.custom_scheduling:assign_default"
-coorm = "src.custom_scheduling:assign_coorm"
+start_every_minute = "src.custom_scheduling:assign_start_every_minute"
 
 [tool.poetry.plugins."oar.find_func"]
 default = "src.custom_scheduling:find_default"
