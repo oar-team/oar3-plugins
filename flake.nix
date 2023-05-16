@@ -2,7 +2,7 @@
   description = "nixos-compose";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -36,16 +36,17 @@
       defaultPackage = self.packages.${system}.${packageName};
 
       devShell = pkgs.mkShell {
+        LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib";
         buildInputs = with pkgs; [
-          (poetry2nix.mkPoetryEnv {
-            projectDir = self;
-            overrides = overrides_oar;
-          })
-          # Install the project so that the entry_points can be found by oar
-          (poetry2nix.mkPoetryApplication {
-            projectDir = self;
-            overrides = overrides_oar;
-          })
+          # (poetry2nix.mkPoetryEnv {
+          #   projectDir = self;
+          #   overrides = overrides_oar;
+          # })
+          # # Install the project so that the entry_points can be found by oar
+          # (poetry2nix.mkPoetryApplication {
+          #   projectDir = self;
+          #   overrides = overrides_oar;
+          # })
           poetry
           postgresql
           pre-commit
