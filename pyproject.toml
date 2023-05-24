@@ -8,8 +8,8 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.7, <4"
-# oar = { git = "https://github.com/oar-team/oar3", branch = "plugins" }
+python = ">=3.9, <4"
+# oar = { git = "https://github.com/oar-team/oar3", branch = "master" }
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.4"
@@ -30,6 +30,7 @@ foo = "src.extra_metasched:extra_metasched_foo"
 [tool.poetry.plugins."oar.assign_func"]
 default = "src.custom_scheduling:assign_default"
 coorm = "src.custom_scheduling:assign_coorm"
+be_walltime = "src.custom_scheduling:assign_best_effort_start_directly"
 one_time_find_mld = "src.custom_scheduling:assign_one_time_find_mld"
 one_time_find = "src.custom_scheduling:assign_one_time_find"
 

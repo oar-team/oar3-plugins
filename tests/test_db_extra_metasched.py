@@ -40,7 +40,9 @@ def oar_conf(request):
         config["EXTRA_METASCHED"] = "default"
 
 
-def test_db_extra_metasched_1(setup_config, minimal_db_initialization, oar_conf, monkeypatch_tools):
+def test_db_extra_metasched_1(
+    setup_config, minimal_db_initialization, oar_conf, monkeypatch_tools
+):
     config["EXTRA_METASCHED"] = "foo"
 
     insert_job(res=[(60, [("resource_id=1", "")])], properties="deploy='YES'")

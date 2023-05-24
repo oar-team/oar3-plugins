@@ -318,3 +318,113 @@ def assign_coorm(slots_set, job, hy, min_start_time, *assign_args, **assign_kwar
     # Split SlotSet to add our reservation
     slots_set.split_slots(prev_sid_left, prev_sid_right, job)
     return prev_sid_left, prev_sid_right, job
+
+
+def find_slot_override_walltime(
+    slots_set, job, res_rqt, hy, min_start_time, override_walltime=None
+):
+    (mld_id, walltime, hy_res_rqts) = res_rqt
+
+    if override_walltime:
+        walltime = override_walltime
+
+    itvs = ProcSet()
+
+    sid_left = 1
+    slots = slots_set.slots
+    sid_right = sid_left
+
+    slot_e = slots[sid_right].e
+
+    while True:
+        # find next contiguous slots_time
+        # print("A: job.id:", job.id, "sid_left:", sid_left, "sid_right:",)
+        # sid_right
+
+        if sid_left != 0 and sid_right != 0:
+            slot_b = slots[sid_left].b
+        else:
+            return (ProcSet(), -1, -1)
+
+        # import pdb; pdb.set_trace()
+        while (slot_e - slot_b + 1) < walltime:
+            sid_right = slots[sid_right].next
+            if sid_right != 0:
+                slot_e = slots[sid_right].e
+            else:
+                return (ProcSet(), -1, -1)
+
+        #        if not updated_cache and (slots[sid_left].itvs != []):
+        #            cache[walltime] = sid_left
+        #            updated_cache = True
+
+        itvs_avail = oar.kao.slot.intersec_itvs_slots(slots, sid_left, sid_right)
+
+        itvs = oar.kao.scheduling.find_resource_hierarchies_job(itvs_avail, hy_res_rqts, hy)
+
+        if len(itvs) != 0:
+            break
+
+        sid_left = slots[sid_left].next
+
+    return (itvs, sid_left, sid_right)
+
+
+def assign_best_effort_start_directly(slots_set, job, hy, min_start_time, *args):
+    """ """
+    minimal_walltime = int(args[0])
+
+    prev_t_finish = 2**32 - 1  # large enough
+    prev_res_set = ProcSet()
+    prev_res_rqt = ProcSet()
+
+    slots = slots_set.slots
+    prev_start_time = slots[1].b
+
+    res_set_nfound = 0
+
+    for res_rqt in job.mld_res_rqts:
+        mld_id, walltime, hy_res_rqts = res_rqt
+        res_set, sid_left, sid_right = find_slot_override_walltime(
+            slots_set,
+            job,
+            res_rqt,
+            hy,
+            min_start_time,
+            override_walltime=minimal_walltime,
+        )
+        if len(res_set) == 0:  # no suitable time*resources found
+            res_set_nfound += 1
+            continue
+
+        # print("after find fisrt suitable")
+        t_finish = slots[sid_left].b + walltime
+        if t_finish < prev_t_finish:
+            prev_start_time = slots[sid_left].b
+            prev_t_finish = t_finish
+            prev_res_set = res_set
+            prev_res_rqt = res_rqt
+            prev_sid_left = sid_left
+            prev_sid_right = sid_right
+
+    # no suitable time*resources found for all res_rqt
+    if res_set_nfound == len(job.mld_res_rqts):
+        job.res_set = ProcSet()
+        job.start_time = -1
+        job.moldable_id = -1
+        return
+
+    (mld_id, walltime, hy_res_rqts) = prev_res_rqt
+    job.moldable_id = mld_id
+    job.res_set = prev_res_set
+    job.start_time = prev_start_time
+    job.walltime = walltime
+
+    # Take avantage of job.starttime = slots[prev_sid_left].b
+    # logger.debug("ASSIGN " + str(job.moldable_id) + " " + str(job.res_set))
+    # job.start_time , job.walltime, job.mld_id
+
+    slots_set.split_slots(prev_sid_left, prev_sid_right, job)
+    # returns value other than None value to indicate successful assign
+    # FIXME: return value not used by kamelot
+    return prev_sid_left, prev_sid_right, job
