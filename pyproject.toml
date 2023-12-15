@@ -8,7 +8,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.7, <4"
+python = ">=3.10, <4"
 # oar = { git = "https://github.com/oar-team/oar3", branch = "plugins" }
 
 [tool.poetry.dev-dependencies]
@@ -40,8 +40,9 @@ begin = "src.custom_scheduling:find_begin"
 contiguous_1h = "src.custom_scheduling:find_contiguous_1h"
 contiguous_sorted_1h = "src.custom_scheduling:find_contiguous_sorted_1h"
 resource_n_h_local = "src.custom_scheduling:find_resource_n_h_local"
-resource_hierarchies_scattered_local = "src.custom_scheduling:resource_hierarchies_scattered_local"
+resource_hierarchies_scattered_local = "src.custom_scheduling:find_resource_hierarchies_scattered_local"
 local = "src.custom_scheduling:find_local"
+find_even_or_odd = "src.custom_scheduling:find_even_or_odd"
 
 [tool.poetry.plugins."oar.jobs_sorting_func"]
 simple_priority = "src.custom_jobs_sorting:jobs_sorting_simple_priority"

@@ -1,12 +1,19 @@
 # coding: utf-8
 """Extra metascheduling functions which can be called between each queue handling
 """
-from oar.lib import Resource, db, get_logger
+
+from oar.lib.globals import init_config, get_logger
+from oar.lib.models import Resource
+
+config = init_config()
+logger = get_logger("oar-plugs.custom_scheduling")
+
 
 logger = get_logger("oar.extra_metasched")
 
 
 def extra_metasched_default(
+    db_session,
     prev_queue,
     plt,
     scheduled_jobs,
@@ -21,6 +28,7 @@ def extra_metasched_default(
 
 
 def extra_metasched_logger(
+    db_session,
     prev_queue,
     plt,
     scheduled_jobs,
@@ -34,6 +42,7 @@ def extra_metasched_logger(
 
 
 def extra_metasched_foo(
+    db_session,
     prev_queue,
     plt,
     scheduled_jobs,
@@ -46,8 +55,8 @@ def extra_metasched_foo(
 
     if prev_queue is None:
         # set first resource deployable
-        first_id = db.query(Resource).first().id
-        db.query(Resource).filter(Resource.id == first_id).update(
+        first_id = db_session.query(Resource).first().id
+        db_session.query(Resource).filter(Resource.id == first_id).update(
             {Resource.deploy: "YES"}, synchronize_session=False
         )
-        db.commit()
+        db_session.commit()

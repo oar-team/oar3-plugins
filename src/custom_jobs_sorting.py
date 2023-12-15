@@ -2,7 +2,9 @@
 """
 import json
 
-from oar.lib import config, get_logger
+from oar.lib.globals import init_config, get_logger
+
+config = init_config()
 
 logger = get_logger("oar.kamelot")
 

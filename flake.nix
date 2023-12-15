@@ -1,56 +1,42 @@
 {
-  description = "nixos-compose";
+  description = "oar3 plugins";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    flake-utils,
-  }:
-    flake-utils.lib.eachDefaultSystem (system: let
-      pkgs = import nixpkgs {inherit system;};
+  outputs = { self, nixpkgs, flake-utils }:
 
-      app = pkgs.poetry2nix.mkPoetryApplication {
-        projectDir = ./.;
-        propagatedBuildInputs = [];
-        editablePackageSources = {
-          oar-plugins = ./src;
+    flake-utils.lib.eachDefaultSystem (system:
+      let
+        pkgs = import nixpkgs { inherit system; };
+
+        app = pkgs.poetry2nix.mkPoetryApplication {
+          projectDir = ./.;
+          propagatedBuildInputs = [ ];
+          editablePackageSources = {
+             oar = ./.;
+          };
         };
-      };
-      # https://github.com/nix-community/poetry2nix/blob/master/docs/edgecases.md#modulenotfounderror-no-module-named-poetry
-      overrides_oar = pkgs.poetry2nix.defaultPoetryOverrides.extend (self: super: {
-        oar = super.oar.overridePythonAttrs (
-          old: {
-            buildInputs = (old.buildInputs or []) ++ [self.poetry];
-          }
-        );
-      });
-      packageName = "oar-plugins";
-    in {
-      packages.${packageName} = app;
 
-      defaultPackage = self.packages.${system}.${packageName};
+        packageName = "oar";
+      in {
+        packages.${packageName} = app;
+        defaultPackage = self.packages.${system}.${packageName};
 
-      devShell = pkgs.mkShell {
-        buildInputs = with pkgs; [
-          (poetry2nix.mkPoetryEnv {
-            projectDir = self;
-            overrides = overrides_oar;
-          })
-          # Install the project so that the entry_points can be found by oar
-          (poetry2nix.mkPoetryApplication {
-            projectDir = self;
-            overrides = overrides_oar;
-          })
-          poetry
-          postgresql
-          pre-commit
-        ];
-      };
-      formatter = nixpkgs.legacyPackages.x86_64-linux.alejandra;
+        devShell = pkgs.mkShell {
+          LD_LIBRARY_PATH = "${pkgs.stdenv.cc.cc.lib}/lib";
+          buildInputs = with pkgs; [
+            # (poetry2nix.mkPoetryEnv { projectDir = self; })
+            # Install the entry point and the plugins
+            # Which is not needed anymore bc the plugins are on a new repo
+            # (poetry2nix.mkPoetryApplication { projectDir = self; })
+            python3Packages.sphinx_rtd_theme
+            poetry
+            postgresql
+            pre-commit
+          ];
+        };
     });
 }
