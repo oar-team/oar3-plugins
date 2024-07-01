@@ -6,11 +6,7 @@ from oar.lib.globals import init_config, get_logger
 from oar.lib.models import Resource
 
 config = init_config()
-logger = get_logger("oar-plugs.custom_scheduling")
-
-
-logger = get_logger("oar.extra_metasched")
-
+logger = get_logger("oar-plugins.custom_extra_metasched")
 
 def extra_metasched_default(
     db_session,
@@ -40,7 +36,7 @@ def extra_metasched_logger(
 ):
     logger.info("plugin successfully called ;)")
 
-
+    
 def extra_metasched_foo(
     db_session,
     prev_queue,

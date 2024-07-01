@@ -5,6 +5,8 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
     flake-utils.url = "github:numtide/flake-utils";
     kapack.url = "github:oar-team/nur-kapack?ref=23.05";
+    #kapack.url = "github:oar-team/nur-kapack?ref=dynres";
+    #kapack.url = "path:/home/auguste/dev/nur-kapack/dynres";
     kapack.inputs.nixpkgs.follows = "nixpkgs";
   };
 

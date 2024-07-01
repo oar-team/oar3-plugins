@@ -51,7 +51,7 @@ def setup_config(request):
         config["DB_BASE_LOGIN_RO"] = os.environ.get("POSTGRES_USER_RO", "oar_ro")
         config["DB_HOSTNAME"] = os.environ.get("POSTGRES_HOST", "localhost")
 
-    config, engine, _ = init_oar(config=config, no_reflect=True)
+    config, engine = init_oar(config=config, no_reflect=True)
 
         
     # def dump_configuration(filename):

@@ -1,7 +1,5 @@
 import pytest
 from sqlalchemy.orm import scoped_session, sessionmaker
-
-from importlib.metadata import entry_points
  
 from oar.kao.kamelot import schedule_cycle
 from oar.kao.platform import Platform
