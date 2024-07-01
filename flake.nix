@@ -4,39 +4,39 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
     flake-utils.url = "github:numtide/flake-utils";
+    kapack.url = "github:oar-team/nur-kapack?ref=23.05";
+    kapack.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
+  outputs = { self, nixpkgs, flake-utils,  kapack}:
 
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
-
-        app = pkgs.poetry2nix.mkPoetryApplication {
-          projectDir = ./.;
-          propagatedBuildInputs = [ ];
-          editablePackageSources = {
-             oar = ./.;
-          };
+        kapackpkgs = kapack.packages.${system};
+        
+        app = pkgs.python3Packages.buildPythonPackage {
+          pname = "oar-plugins";
+          version = "0.1.1";
+          format = "pyproject";
+          src = ./.;
+          nativeBuildInputs = [ pkgs.python3Packages.poetry-core ];
+          propagatedBuildInputs = [ kapackpkgs.oar ];
         };
 
-        packageName = "oar";
+        packageName = "oar-plugins";
       in {
         packages.${packageName} = app;
         defaultPackage = self.packages.${system}.${packageName};
 
-        devShell = pkgs.mkShell {
-          LD_LIBRARY_PATH = "${pkgs.stdenv.cc.cc.lib}/lib";
-          buildInputs = with pkgs; [
-            # (poetry2nix.mkPoetryEnv { projectDir = self; })
-            # Install the entry point and the plugins
-            # Which is not needed anymore bc the plugins are on a new repo
-            # (poetry2nix.mkPoetryApplication { projectDir = self; })
-            python3Packages.sphinx_rtd_theme
-            poetry
-            postgresql
-            pre-commit
-          ];
+        devShells = {
+            default = pkgs.mkShell {
+              packages = with pkgs; [
+                python3Packages.pytest
+                app
+                pre-commit
+              ];
+            };
         };
     });
 }
