@@ -1,22 +1,32 @@
-# coding: utf-8
 import pytest
+from sqlalchemy.orm import scoped_session, sessionmaker
 
+from importlib.metadata import entry_points
+ 
 from oar.kao.kamelot import schedule_cycle
 from oar.kao.platform import Platform
-from oar.lib import config, db
+from oar.lib.database import ephemeral_session
 from oar.lib.job_handling import insert_job
-
+from oar.lib.models import GanttJobsPrediction, Resource
 
 @pytest.fixture(scope="function", autouse=True)
-def minimal_db_initialization(request):
-    with db.session(ephemeral=True):
-        yield
-
+def db(request, setup_config):
+    _, engine = setup_config
+    session_factory = sessionmaker(bind=engine)
+    scoped = scoped_session(session_factory)
+    
+    with ephemeral_session(scoped, engine, bind=engine) as session:
+        for i in range(5):
+            Resource.create(session, network_address="localhost")
+        yield session
 
 @pytest.fixture(scope="module", autouse=True)
-def oar_conf(request):
+def oar_conf(request, setup_config):
+    config, _ = setup_config
     config["JOB_PRIORITY"] = "CUSTOM"
-
+    
+    yield config
+ 
     @request.addfinalizer
     def remove_job_sorting():
         config["JOB_PRIORITY"] = "FIFO"
@@ -24,33 +34,27 @@ def oar_conf(request):
         config["CUSTOM_JOB_SORTING_CONFIG"] = ""
 
 
-def test_db_job_sorting_simple_priority_no_waiting_time():
-
+def test_db_job_sorting_simple_priority_no_waiting_time(db, oar_conf):
+    config = oar_conf
     config["CUSTOM_JOB_SORTING"] = "simple_priority"
 
     plt = Platform()
     now = plt.get_time()
 
-    # add some resources
-    for i in range(4):
-        db["Resource"].create(network_address="localhost")
-
     # add some job with priority
     for i in range(10):
         priority = str(float(i) / 10.0)
         insert_job(
+            db,
             res=[(60, [("resource_id=4", "")])],
             submission_time=now,
             types=["priority=" + priority],
         )
 
-    schedule_cycle(plt, plt.get_time())
+    schedule_cycle(db, config, plt, plt.get_time() )
 
-    req = (
-        db["GanttJobsPrediction"]
-        .query.order_by(db["GanttJobsPrediction"].start_time)
-        .all()
-    )
+    req = db.query(GanttJobsPrediction).order_by(GanttJobsPrediction.start_time).all()
+    
     flag = True
 
     print(req)
