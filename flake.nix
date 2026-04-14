@@ -2,9 +2,10 @@
   description = "oar3 plugins";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
     flake-utils.url = "github:numtide/flake-utils";
-    kapack.url = "github:oar-team/nur-kapack?ref=master";
+    #kapack.url = "github:oar-team/nur-kapack?ref=master";
+    kapack.url = "gitlab:kairns/kapack?host=gricad-gitlab.univ-grenoble-alpes.fr";
     #kapack.url = "github:oar-team/nur-kapack?ref=dynres";
     #kapack.url = "path:/home/auguste/dev/nur-kapack/dynres";
     kapack.inputs.nixpkgs.follows = "nixpkgs";
